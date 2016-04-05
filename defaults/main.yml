@@ -1,2 +1,24 @@
----
-# defaults file for ansible-role-undercloud-post
+working_dir: /home/stack
+local_working_dir: "{{ lookup('env', 'HOME') }}/.cat"
+
+undercloud_config_file: undercloud.conf.j2
+undercloud_install_script: undercloud-install.sh.j2
+undercloud_post_install_script: undercloud-install-post.sh.j2
+undercloud_install_log: "{{ working_dir }}/undercloud_install.log"
+undercloud_post_install_log: "{{ working_dir }}/undercloud_post_install.log"
+
+undercloud_network_cidr: 192.0.2.0/24
+
+step_introspect: false
+bash_deploy_ramdisk: false
+step_install_undercloud: true
+
+network_isolation: true
+ipv6: false
+network_isolation_vlan_tag: 10
+#ipv4 settings
+network_isolation_ipv4_cidr: "172.16.23.0/24"
+network_isolation_addr: "{{ network_isolation_ipv4_cidr|nthhost(1) }}"
+network_isolation_netmask: "{{ network_isolation_ipv4_cidr|ipaddr(query='netmask') }}"
+#ipv6 settings
+network_isolation_ipv6_addr: "2001:db8:fd00:1000:dead:beef:cafe:f00::/64"
