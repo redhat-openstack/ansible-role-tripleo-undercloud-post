@@ -6,8 +6,6 @@
   register: undercloud_admin_password
 
 - name: Copy stackrc to ansible host
-  tags:
-    - undercloud-post-install
   fetch:
     flat: true
     src: stackrc
