@@ -22,3 +22,57 @@ network_isolation_addr: "{{ network_isolation_ipv4_cidr|nthhost(1) }}"
 network_isolation_netmask: "{{ network_isolation_ipv4_cidr|ipaddr(query='netmask') }}"
 #ipv6 settings
 network_isolation_ipv6_addr: "2001:db8:fd00:1000:dead:beef:cafe:f00::/64"
+
+
+# The overcloud will have three controllers, one compute node,
+# and a ceph storage node.
+overcloud_nodes:
+  - name: control_0
+    flavor: control
+  - name: control_1
+    flavor: control
+  - name: control_2
+    flavor: control
+
+  - name: compute_0
+    flavor: compute
+
+  - name: ceph_0
+    flavor: ceph
+
+# These defaults are used if there are no flavor-specific
+# overrides configured.
+default_disk: 50
+default_memory: 8192
+default_vcpu: 1
+
+# The undercloud needs more than the default amount of memory
+# and disk.
+undercloud_memory: 12288
+undercloud_disk: 50
+undercloud_vcpu: 4
+
+# The default deployment has flavors for compute, controllers, ceph
+# nodes, and undercloud nodes.  All flavors defined in the `flavors`
+# key will be created with an `oooq_` prefix to avoid conflicts with
+# the pre-defined flavors created by `openstack install undercloud`.
+flavors:
+  compute:
+    memory: '{{compute_memory|default(default_memory)}}'
+    disk: '{{compute_disk|default(default_disk)}}'
+    vcpu: '{{compute_vcpu|default(default_vcpu)}}'
+
+  control:
+    memory: '{{control_memory|default(default_memory)}}'
+    disk: '{{control_disk|default(default_disk)}}'
+    vcpu: '{{control_vcpu|default(default_vcpu)}}'
+
+  ceph:
+    memory: '{{ceph_memory|default(default_memory)}}'
+    disk: '{{ceph_disk|default(default_disk)}}'
+    vcpu: '{{ceph_vcpu|default(default_vcpu)}}'
+
+  undercloud:
+    memory: '{{undercloud_memory|default(default_memory)}}'
+    disk: '{{undercloud_disk|default(default_disk)}}'
+    vcpu: '{{undercloud_vcpu|default(default_vcpu)}}'
