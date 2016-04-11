@@ -1,0 +1,44 @@
+#!/bin/bash
+# Retry introspection on a per node basis if there is a failure in
+# bulk intrspection
+
+set -eux
+
+# For failed nodes relaunch introspection on single basis
+export FAILED_IN_NODES=$(openstack baremetal introspection bulk status | grep -E ' False | True.*\| Introspection timeout' |  awk -F ' | ' '{print $2}');
+for node in $FAILED_IN_NODES ; do
+    openstack baremetal introspection start $node;
+done
+
+# Wait 15 minutes for introspection to complete
+TIMEOUT=15
+MINUTE=0
+FAILURE=true
+while [ $MINUTE -lt $TIMEOUT ]; do
+ # Check nodes with introspection status different from true
+ export FAILED_IN_NODES=$(openstack baremetal introspection bulk status | grep -E ' False | True.*\| Introspection timeout' |  awk -F ' | ' '{print $2}');
+ if [ "x$FAILED_IN_NODES" = "x" ]
+  then
+   # No nodes, we're fine, let's go outside
+   FAILURE=false
+   break
+  else
+   # Print nodes not finished
+   for node in $FAILED_IN_NODES ; do
+    openstack --debug baremetal introspection status $node;
+   done
+   # Sleep one minute and the jump
+   sleep 60
+   let "MINUTE+=1"
+ fi
+done;
+# If we have reached timeout, we exit with 1
+[ "$FAILURE" = true ] && exit 1
+
+export IRONIC_NODE_LIST=$(ironic node-list | grep 'power' |  awk '{print $2}');
+for node in $IRONIC_NODE_LIST ; do
+    export PROV_STATE=$(ironic node-show $node | grep ' provision_state ');
+    if [[ $PROV_STATE  != *"available"* ]]; then
+            ironic node-set-provision-state $node provide;
+    fi;
+done

@@ -43,6 +43,12 @@
     dest: "{{ working_dir }}/undercloud-post-install.sh"
     mode: 0755
 
+- name: Create the introspection status script
+  template:
+    src: "{{ introspection_retry_script }}"
+    dest: "{{ working_dir }}/introspection-retry.sh"
+    mode: 0755
+
 - name: Prepare the undercloud for deploy
   shell: >
     {{ working_dir }}/undercloud-post-install.sh > {{ undercloud_post_install_log }} 2>&1

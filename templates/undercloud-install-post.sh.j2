@@ -45,6 +45,10 @@ cd
 openstack baremetal introspection bulk start
 {% endif %}
 
+{% if step_introspect_with_retry %}
+./introspection-retry.sh
+{% endif %}
+
 {% for name, flavor in (flavors|default({})).items() if name != 'undercloud' %}
 #
 # Create flavor oooq_{{name}}

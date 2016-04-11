@@ -6,6 +6,7 @@ undercloud_type: virtual
 undercloud_config_file: undercloud.conf.j2
 undercloud_install_script: undercloud-install.sh.j2
 undercloud_post_install_script: undercloud-install-post.sh.j2
+introspection_retry_script: introspection-retry-script.sh.j2
 undercloud_install_log: "{{ working_dir }}/undercloud_install.log"
 undercloud_post_install_log: "{{ working_dir }}/undercloud_post_install.log"
 
@@ -15,6 +16,7 @@ baremetal_instackenv: "{{ working_dir }}/instackenv.json"
 baremetal_network_isolation: "{{ working_dir }}/network-isolation.yml"
 
 step_introspect: false
+step_introspect_with_retry: false
 bash_deploy_ramdisk: false
 step_install_undercloud: true
 
