@@ -32,3 +32,10 @@
     {{ undercloud_post_install_log }} 2>&1
   when: step_install_undercloud
 
+- name: allow traffic for the controller
+  sudo: yes
+  shell: >
+        iptables -A BOOTSTACK_MASQ -s {{ network_isolation_addr }} ! \
+        -d {{ network_isolation_addr }} -j MASQUERADE -t nat;
+        iptables-save > /etc/sysconfig/iptables;
+  when: network_isolation
