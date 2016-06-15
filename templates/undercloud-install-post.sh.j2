@@ -41,6 +41,30 @@ openstack flavor set --property "{{propname}}={{propval}}" oooq_{{ name }}
 
 {% endfor %}
 
+{% if undercloud_type == 'baremetal' %}
+
+# Configuring external bridge access"
+ExternalNetCidr=$(grep ExternalNetCidr network-environment.yaml|awk '{print $2}')
+ExternalInterfaceDefaultRoute=$(grep ExternalInterfaceDefaultRoute network-environment.yaml|awk '{print $2}')
+ExternalNetworkVlanID=$(grep ExternalNetworkVlanID network-environment.yaml|awk '{print $2}')
+
+# Creating device for accessing external API network from undercloud
+sudo ovs-vsctl add-port br-ctlplane vlan$ExternalNetworkVlanID tag=$ExternalNetworkVlanID -- set interface vlan$ExternalNetworkVlanID type=internal
+sudo ip link set dev vlan$ExternalNetworkVlanID up
+sudo ip addr add $ExternalInterfaceDefaultRoute/24 dev vlan$ExternalNetworkVlanID
+sudo iptables -A BOOTSTACK_MASQ -s $ExternalNetCidr ! -d $ExternalNetCidr -j MASQUERADE -t nat
+
+# Updating flavor baremetal
+openstack flavor set --property "cpu_arch"="x86_64" --property "capabilities:boot_option"="local" --property "capabilities:profile"="baremetal" baremetal
+
+# Associating flavor baremetal to all the nodes
+ids="$(ironic node-list --detail | grep pxe_ipmi | awk '{print $(NF-3)}')"
+for i in $ids; do
+  ironic node-update $i add properties/capabilities='profile:baremetal,boot_option:local'
+done
+
+{% else %}
+
 {% if network_isolation == true and ipv6 == false %}
 sudo bash -c 'cat <<EOF > /etc/sysconfig/network-scripts/ifcfg-vlan{{ network_isolation_vlan_tag }}
 DEVICE=vlan{{ network_isolation_vlan_tag }}
@@ -71,4 +95,5 @@ OVS_OPTIONS="tag={{ network_isolation_vlan_tag }}"
 EOF'
 
 sudo ifup ifcfg-vlan{{ network_isolation_vlan_tag }}
+{%endif%}
 {%endif%}
