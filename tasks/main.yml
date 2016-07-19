@@ -35,7 +35,7 @@
   copy:
     src: "{{ baremetal_nic_configs }}"
     dest: "{{ working_dir }}"
-  when: undercloud_type == "baremetal" and baremetal_nic_configs is defined
+  when: baremetal_nic_configs is defined
 
 - name: Create undercloud post-install script
   template:
