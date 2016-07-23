@@ -1,5 +1,7 @@
 working_dir: /home/stack
 
+libvirt_uri: qemu:///session
+
 undercloud_type: virtual
 undercloud_config_file: undercloud.conf.j2
 undercloud_install_script: undercloud-install.sh.j2
