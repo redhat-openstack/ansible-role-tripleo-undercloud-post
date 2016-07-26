@@ -81,7 +81,7 @@ done
 
 {% else %}
 
-{% if network_isolation == true and ipv6 == false %}
+{% if network_isolation == true and undercloud_type != 'ovb' and ipv6 == false %}
 sudo bash -c 'cat <<EOF > /etc/sysconfig/network-scripts/ifcfg-vlan{{ network_isolation_vlan_tag }}
 DEVICE=vlan{{ network_isolation_vlan_tag }}
 ONBOOT=yes
@@ -97,7 +97,7 @@ EOF'
 sudo ifup ifcfg-vlan{{ network_isolation_vlan_tag }}
 {%endif%}
 
-{% if network_isolation == true and ipv6 == true %}
+{% if network_isolation == true and undercloud_type != 'ovb' and ipv6 == true %}
 sudo bash -c 'cat <<EOF > /etc/sysconfig/network-scripts/ifcfg-vlan{{ network_isolation_vlan_tag }}
 IPV6INIT=yes
 DEVICE=vlan{{ network_isolation_vlan_tag }}
