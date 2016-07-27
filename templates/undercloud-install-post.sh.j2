@@ -74,7 +74,11 @@ sudo iptables -A BOOTSTACK_MASQ -s $ExternalNetCidr ! -d $ExternalNetCidr -j MAS
 openstack flavor set --property "cpu_arch"="x86_64" --property "capabilities:boot_option"="local" --property "capabilities:profile"="baremetal" baremetal
 
 # Associating flavor baremetal to all the nodes
+{% if release == 'master' %}
+ids="$(openstack baremetal list --fields uuid driver | grep pxe_ipmi | awk '{ print $2 }')"
+{% else %}
 ids="$(ironic node-list --detail | grep pxe_ipmi | awk '{print $(NF-3)}')"
+{% endif %}
 for i in $ids; do
   ironic node-update $i add properties/capabilities='profile:baremetal,boot_option:local'
 done
