@@ -27,6 +27,20 @@ openstack overcloud image upload \
 openstack baremetal import --json instackenv.json
 openstack baremetal configure boot
 
+{% if release == 'master' or release == 'mitaka' %}
+####################################################
+# This is a workaround which should be removed while
+# https://bugzilla.redhat.com/show_bug.cgi?id=1324422
+# gets its resolution
+sudo yum -y install xz-devel
+git clone git://git.ipxe.org/ipxe.git
+cd ipxe/src
+make
+sudo cp bin/undionly.kpxe /tftpboot/undionly.kpxe
+cd
+####################################################
+{% endif %}
+
 {% if step_introspect %}
 openstack baremetal introspection bulk start
 {% endif %}
